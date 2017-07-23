@@ -14,7 +14,7 @@ GHOST_GIT_CHECKOUT_NAME="${GHOST_GIT_CHECKOUT_NAME:-ghost-checkout}"
 
 # The name of the deploy script that should be in the checkout
 # for automatic deploy
-GHOST_GIT_DEPLOY_SCRIPT="${GHOST_GIT_BUILD_FILE:-'scripts/deploy.sh'}"
+GHOST_GIT_DEPLOY_SCRIPT="${GHOST_GIT_BUILD_FILE:-scripts/deploy.sh}"
 
 ghost_init_bash_path() {
     if ! [ "$BASH_INIT_PATH" ]; then
@@ -168,9 +168,12 @@ ghost_init_repo_post_receive() {
 #!/usr/bin/env bash
 set -e
 git --git-dir "${repo_dir}" --work-tree "${checkout_dir}" checkout -f
-chmod +x "${deploy_file}"
-cd "${checkout_dir}"
-"${deploy_file}"
+if [ -f "$deploy_file" ]; 
+then
+    cd "$checkout_dir"
+    chmod +x "$deploy_file"    
+    "${deploy_file}"
+fi;
 EOF
     fi;
     chmod +x "${post_receive_file}"

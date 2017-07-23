@@ -28,10 +28,10 @@ ghost_run_remote() {
     done
 
     local lx1=i+1
-    local lx3=i-3
+    local lx2=i-2
 
     local cmd=${@:$lx1}
-    local ssh_args=${@:3:$lx3}
+    local ssh_args=${@:2:$lx2}
 
     echo "> remote-command: " $cmd
     echo "> ssh-args: " $ssh_args
@@ -42,13 +42,11 @@ ghost_run_remote() {
     local scripts_dir=$(dirname "${script_file}")
     local ghost_scripts_dir="${GHOST_DIR_NAME}/ghost-scripts"
 
-    local opts=$-;if ! [[ $opts =~ x ]]; then set -x; fi;
+    # local opts=$-;if ! [[ $opts =~ x ]]; then set -x; fi;
 
-    ssh -t $ssh_args "$host" "rm -rf \"${ghost_scripts_dir}\" && mkdir -p \"${ghost_scripts_dir}\""
-    scp -rp $ssh_args "${scripts_dir}/" "${host}:\"${ghost_scripts_dir}/\""
-    ssh -t $ssh_args "$host" "source .profile; ${ghost_scripts_dir}/main.sh ${cmd}"
+    find . -not -path "./.git*" -path "*.sh" | xargs tar czf - | ssh ${ssh_args} "rm -rf \"${ghost_scripts_dir}\" && mkdir -p \"${ghost_scripts_dir}\" && tar xzf - -C \"${ghost_scripts_dir}\" && source .profile && \"${ghost_scripts_dir}/main.sh\" ${cmd}"
 
-    if ! [[ $opts =~ x ]]; then set +x; fi;
+    # if ! [[ $opts =~ x ]]; then set +x; fi;
 }
 
 ghost_main_usage() {
