@@ -147,12 +147,21 @@ ghost_init_bare_repo() {
     echo "> init git bare repo"
     local work_dir="${HOME}/${GHOST_DIR_NAME}"
     local repo_dir="${work_dir}/${GHOST_GIT_TARGET_NAME}"
-    local checkout_dir="${work_dir}/${GHOST_GIT_CHECKOUT_NAME}"
-    local deploy_script="${GHOST_GIT_DEPLOY_SCRIPT}"
     git --git-dir "${repo_dir}" init --bare
+    ghost_init_repo_post_receive
+}
+
+ghost_init_repo_post_receive() {
+    local work_dir="${HOME}/${GHOST_DIR_NAME}"
+    local repo_dir="${work_dir}/${GHOST_GIT_TARGET_NAME}"
+    local checkout_dir="${work_dir}/${GHOST_GIT_CHECKOUT_NAME}"    
+    local deploy_script="${GHOST_GIT_DEPLOY_SCRIPT}"
     local post_receive_file="${repo_dir}/hooks/post-receive"
+
     if ! [ -f "${post_receive_file}" ]; 
     then
+        echo "> init git repo: post-receive"
+    
         touch "${post_receive_file}"
         local deploy_file="${checkout_dir}/${deploy_script}"
         tee "${post_receive_file}" <<- EOF
