@@ -12,9 +12,9 @@ GHOST_GIT_TARGET_NAME="${GHOST_GIT_TARGET_NAME:-ghost.git}"
 # default after a remote pushes into the repo.
 GHOST_GIT_CHECKOUT_NAME="${GHOST_GIT_CHECKOUT_NAME:-ghost-checkout}"
 
-# The name of the build file that should be in the checkout
-# for automatic build
-GHOST_GIT_BUILD_FILE="${GHOST_GIT_BUILD_FILE:-build.sh}"
+# The name of the deploy script that should be in the checkout
+# for automatic deploy
+GHOST_GIT_DEPLOY_SCRIPT="${GHOST_GIT_BUILD_FILE:-'scripts/deploy.sh'}"
 
 ghost_init_bash_path() {
     if ! [ "$BASH_INIT_PATH" ]; then
@@ -148,19 +148,20 @@ ghost_init_bare_repo() {
     local work_dir="${HOME}/${GHOST_DIR_NAME}"
     local repo_dir="${work_dir}/${GHOST_GIT_TARGET_NAME}"
     local checkout_dir="${work_dir}/${GHOST_GIT_CHECKOUT_NAME}"
+    local deploy_script="${GHOST_GIT_DEPLOY_SCRIPT}"
     git --git-dir "${repo_dir}" init --bare
     local post_receive_file="${repo_dir}/hooks/post-receive"
     if ! [ -f "${post_receive_file}" ]; 
     then
         touch "${post_receive_file}"
-        local build_file="${checkout_dir}/build.sh"
+        local deploy_file="${checkout_dir}/${deploy_script}"
         tee "${post_receive_file}" <<- EOF
 #!/usr/bin/env bash
 set -e
 git --git-dir "${repo_dir}" --work-tree "${checkout_dir}" checkout -f
-chmod +x "${build_file}"
+chmod +x "${deploy_file}"
 cd "${checkout_dir}"
-"${build_file}"
+"${deploy_file}"
 EOF
     fi;
     chmod +x "${post_receive_file}"
