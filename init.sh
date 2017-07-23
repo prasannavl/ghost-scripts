@@ -224,13 +224,6 @@ ghost_configure_ssh_env() {
     ghost_configure_restart_sshd
 }
 
-ghost_configure_git_post_hook() {
-    local work_dir="${HOME}/${GHOST_DIR_NAME}/ghost.git"
-    local hooks_dir=..
-    local ...
-
-}
-
 ghost_configure_restart_sshd() {
     echo "> restarting sshd"
     sudo systemctl restart sshd     
