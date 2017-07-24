@@ -11,7 +11,7 @@ Usage:
 
 ./main.sh init
 ./main.sh pull [--repo GHOST_REPO] [--name GHOST_DEPLOY_NAME] [--commit commit_sha1]
-./main.sh remote <ssh-host> <ssh-options> -- [exec] <command>
+./main.sh remote <ssh-options> -- [exec] <command>
 ```
 
 Example Tasks:
