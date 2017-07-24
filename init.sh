@@ -172,7 +172,7 @@ set -e
 source "${HOME}/.profile"
 mkdir -p "${checkout_dir}"
 cd "${checkout_dir}"
-git --git-dir "${repo_dir}" --work-tree "${checkout_dir}" checkout -f
+git --git-dir "${repo_dir}" checkout -f
 if [ -f "$deploy_file" ]; 
 then
     cd "$checkout_dir"
@@ -186,8 +186,8 @@ EOF
 
 ghost_cleanup_bare_repo() {
     echo "> cleanup git bare repo"    
-    local work_dir="${HOME}/${GHOST_DIR_NAME}"    
-    local repo_dir="${work_dir}/ghost.git"
+    local work_dir="${HOME}/${GHOST_DIR_NAME}"
+    local repo_dir="${work_dir}/${GHOST_GIT_TARGET_NAME}"
     rm -rf "$repo_dir"
 }
 
