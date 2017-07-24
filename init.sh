@@ -167,6 +167,8 @@ ghost_init_repo_post_receive() {
         tee "${post_receive_file}" <<- EOF
 #!/usr/bin/env bash
 set -e
+mkdir -p "${checkout_dir}"
+cd "${checkout_dir}"
 git --git-dir "${repo_dir}" --work-tree "${checkout_dir}" checkout -f
 if [ -f "$deploy_file" ]; 
 then
