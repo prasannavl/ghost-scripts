@@ -18,7 +18,7 @@ GHOST_GIT_DEPLOY_SCRIPT="${GHOST_GIT_BUILD_FILE:-scripts/deploy.sh}"
 
 ghost_init_bash_path() {
     if ! [ "$BASH_INIT_PATH" ]; then
-        echo "export BASH_INIT_PATH=\"${PATH}\"" >> ~/.profile
+        echo "export BASH_INIT_PATH=\"${PATH}\"" >> "${HOME}/.profile"
         export BASH_INIT_PATH="${PATH}"
     fi;
 }
@@ -57,13 +57,15 @@ ghost_install_golang() {
     tar -xf "$go_package" -C "$go_root" --strip-components=1
     # rm "$go_package"
 
-    echo "export PATH=\"\$PATH:${go_root}/bin:${go_path}/bin\" # +ghost:path:go" >> ~/.profile
-    echo "export GOROOT=\"${go_root}\" # +ghost:goroot" >> ~/.profile
-    echo "export GOPATH=\"${go_path}\" # +ghost:gopath" >> ~/.profile
+    local profile_file="${HOME}/.profile"
 
-    export PATH="$PATH:${go_root}/bin:${go_path}/bin" >> ~/.profile
-    export GOROOT="${go_root}" >> ~/.profile
-    export GOPATH="${go_path}" >> ~/.profile
+    echo "export PATH=\"\$PATH:${go_root}/bin:${go_path}/bin\" # +ghost:path:go" >> "$profile_file"
+    echo "export GOROOT=\"${go_root}\" # +ghost:goroot" >> "$profile_file"
+    echo "export GOPATH=\"${go_path}\" # +ghost:gopath" >> "$profile_file"
+
+    export PATH="$PATH:${go_root}/bin:${go_path}/bin" >> "$profile_file"
+    export GOROOT="${go_root}" >> "$profile_file"
+    export GOPATH="${go_path}" >> "$profile_file"
 }
 
 ghost_ensure_golang() {
@@ -76,7 +78,7 @@ ghost_ensure_golang() {
 ghost_cleanup_golang() {
     echo "> cleanup golang"
     local go_root="${GOROOT}"
-    sed -i "/\+ghost\(:path:go\|:goroot\|:gopath\)/d" ~/.profile
+    sed -i "/\+ghost\(:path:go\|:goroot\|:gopath\)/d" "${HOME}/.profile"
     rm -rf "${go_root}"
     unset GOPATH
     unset GOROOT
@@ -167,7 +169,7 @@ ghost_init_repo_post_receive() {
         tee "${post_receive_file}" <<- EOF
 #!/usr/bin/env bash
 set -e
-source ~/.profile
+source "${HOME}/.profile"
 mkdir -p "${checkout_dir}"
 cd "${checkout_dir}"
 git --git-dir "${repo_dir}" --work-tree "${checkout_dir}" checkout -f
