@@ -172,11 +172,11 @@ set -e
 source "${HOME}/.profile"
 mkdir -p "${checkout_dir}"
 cd "${checkout_dir}"
-git --git-dir "${repo_dir}" checkout -f
+git --git-dir="${repo_dir}" --work-tree="${checkout_dir}" checkout -f
 if [ -f "$deploy_file" ]; 
 then
     cd "$checkout_dir"
-    chmod +x "$deploy_file"    
+    chmod +x "$deploy_file"
     "${deploy_file}"
 fi;
 EOF
