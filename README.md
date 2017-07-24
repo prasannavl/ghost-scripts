@@ -15,6 +15,7 @@ Usage:
 ```
 
 Example Tasks:
+
 - Install essentials
 - Install Golang
 - Install nvm + npm + node

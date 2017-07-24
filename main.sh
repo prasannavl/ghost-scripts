@@ -42,11 +42,7 @@ ghost_run_remote() {
     local scripts_dir=$(dirname "${script_file}")
     local ghost_scripts_dir="${GHOST_DIR_NAME}/ghost-scripts"
 
-    # local opts=$-;if ! [[ $opts =~ x ]]; then set -x; fi;
-
     find . -not -path "./.git*" -path "*.sh" | xargs tar czf - | ssh ${ssh_args} "rm -rf \"${ghost_scripts_dir}\" && mkdir -p \"${ghost_scripts_dir}\" && tar xzf - -C \"${ghost_scripts_dir}\" && source .profile && \"${ghost_scripts_dir}/main.sh\" ${cmd}"
-
-    # if ! [[ $opts =~ x ]]; then set +x; fi;
 }
 
 ghost_main_usage() {
