@@ -154,6 +154,9 @@ ghost_init_bare_repo() {
 }
 
 ghost_init_repo_post_receive() {
+    # TODO: Add race condition handling to post-receive scripts, 
+    # with graceful exit of previous script
+    
     local work_dir="${HOME}/${GHOST_DIR_NAME}"
     local repo_dir="${work_dir}/${GHOST_GIT_TARGET_NAME}"
     local checkout_dir="${work_dir}/${GHOST_GIT_CHECKOUT_NAME}"    
