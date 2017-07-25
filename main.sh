@@ -8,7 +8,7 @@ ghost_run_main() {
     local ghost_dir=$(dirname "${0}")
     source ${ghost_dir}/init.sh
     source ${ghost_dir}/pull.sh
-    if [[ $# -ne 0 ]]; then ghost_main_parse_and_exec $@; fi;    
+    if [[ $# -ne 0 ]]; then ghost_main_parse_and_exec "$@"; fi;    
 }
 
 ghost_run_remote() {
@@ -60,18 +60,18 @@ ghost_main_parse_and_exec() {
     set -e
     case "$1" in
         "init")
-        ghost_run_init $@
+        ghost_run_init "$@"
         ;;
         "pull")
-        ghost_run_pull $@
+        ghost_run_pull "$@"
         ;;
         "remote")
-        ghost_run_remote $@
+        ghost_run_remote "$@"
         ;;
         "exec")
         local cmd=${@:1}
         local ext_cmd=$(echo "$cmd" | sed -r "s/^exec\s(.*)/\1/")
-        $ext_cmd
+        "$ext_cmd"
         ;;
         *)
         ghost_main_usage
@@ -79,4 +79,4 @@ ghost_main_parse_and_exec() {
     esac
 }
 
-ghost_run_main $@
+ghost_run_main "$@"
