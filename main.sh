@@ -21,15 +21,21 @@ ghost_run_remote() {
 
     local host=$2
     local i;
-    for ((i=3;i<$#;i++)) # start at 2 to skip the first 2 args
+    # start at 3 to safely skip the first 3 - script, cmd(remote), and ssh-host
+    for ((i=3;i<$#;i++)) 
     do
         local x=${!i};
         if [ $x == "--" ]; then local _ARG_CMD="1"; break; fi;
     done
 
+    # The index pointing to the next args,
+    # i.e, the first of the extra args after `--` 
     local lx1=i+1
+    # The index pointing to the last of the non-extra, 
+    # i.e, skip 2 - the last increment and `--` before.
     local lx2=i-2
 
+    # extract args 
     local cmd=${@:$lx1}
     local ssh_args=${@:2:$lx2}
 
@@ -41,6 +47,13 @@ ghost_run_remote() {
     local script_file="$0"
     local scripts_dir=$(dirname "${script_file}")
     local ghost_scripts_dir="${GHOST_DIR_NAME}/ghost-scripts"
+
+    # - Find the all the relevant files in the current directory that
+    #   has to be on the remote
+    # - Tar them up.
+    # - Transfer them by directly piping into ssh.
+    # - Ensure required paths before transfer
+    # - Source .profile, and execute main script
 
     find . -not -path "./.git*" -path "*.sh" | xargs tar czf - | ssh ${ssh_args} "rm -rf \"${ghost_scripts_dir}\" && mkdir -p \"${ghost_scripts_dir}\" && tar xzf - -C \"${ghost_scripts_dir}\" && source .profile && \"${ghost_scripts_dir}/main.sh\" ${cmd}"
 }
