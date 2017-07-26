@@ -1,4 +1,4 @@
-### Ghost
+## ghost-scripts
 
 Scripts for friction-free manual production environment preparation, build and deployment.
 
