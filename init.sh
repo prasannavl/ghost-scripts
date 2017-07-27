@@ -154,7 +154,7 @@ ghost_init_repo_post_receive() {
         local deploy_file="${checkout_dir}/${deploy_script}"
         tee "${post_receive_file}" <<- EOF
 #!/usr/bin/env bash
-set -e
+set -e -i
 source "${HOME}/.profile"
 rm -rf "${checkout_dir}"
 mkdir -p "${checkout_dir}"

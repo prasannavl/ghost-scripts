@@ -59,7 +59,7 @@ ghost_run_remote() {
 rm -rf \"${ghost_scripts_dir}\" && 
 mkdir -p \"${ghost_scripts_dir}\" &&
 tar xzf - -C \"${ghost_scripts_dir}\" &&
-set -i && source .profile && set +i &&
+set -i && source .profile &&
 \"${ghost_scripts_dir}/main.sh\" ${cmd}
 "
     find . -not -path "./.git*" -path "*.sh" | xargs tar czf - | ssh ${ssh_args} "${remote_script}"
