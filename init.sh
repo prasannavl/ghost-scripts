@@ -214,29 +214,8 @@ ghost_configure_mongo_restart_on_failure() {
     fi;
 }
 
-ghost_configure_ssh_env() {
-    local sshd_config="/etc/ssh/sshd_config"
-    if [ $(grep -E "^\s*PermitUserEnvironment\s+" ${sshd_config}) ]; then
-        if ! [ $(grep -E "^\s*PermitUserEnvironment\s+yes" ${sshd_config}) ]; then
-            echo "> modifying sshd config - PermitUserEnvironment"        
-            sed -r "s/(^\s*PermitUserEnvironment\s+)(.*)/\1yes/" ${sshd_config} | sudo tee ${sshd_config} > /dev/null
-            ghost_configure_restart_sshd
-        fi;
-        return
-    fi;
-    echo "> adding sshd config - PermitUserEnvironment"
-    printf "\r\nPermitUserEnvironment yes\r\n" | cat ${sshd_config} - | sudo tee ${sshd_config} > /dev/null
-    ghost_configure_restart_sshd
-}
-
-ghost_configure_restart_sshd() {
-    echo "> restarting sshd"
-    sudo systemctl restart sshd     
-}
-
 ghost_run_init() {
     echo "> ghost: init start"
-    ghost_configure_ssh_env
     ghost_ensure_essentials
     # ghost_ensure_golang
     # ghost_ensure_node
