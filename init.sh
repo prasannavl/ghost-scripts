@@ -173,6 +173,7 @@ ghost_init_repo_post_receive() {
 #!/usr/bin/env bash
 set -e
 source "${HOME}/.profile"
+rm -rf "${checkout_dir}"
 mkdir -p "${checkout_dir}"
 cd "${checkout_dir}"
 git --git-dir="${repo_dir}" --work-tree="${checkout_dir}" checkout -f
