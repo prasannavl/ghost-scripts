@@ -33,55 +33,38 @@ ghost_ensure_essentials() {
     sudo apt update && sudo apt install -y build-essential nano curl git mercurial make binutils bison gcc python tree mc htop
 }
 
-ghost_install_golang() {
-    echo "> install golang"
-    
-    local version="${GHOST_GOVERSION:-1.8.3}";
-    local arch="${GHOST_GOARCH:-amd64}"
-    local os="${GHOST_GOOS:-linux}"
-
-    local work_dir="${HOME}/${GHOST_DIR_NAME}"
-
-    local go_path="${work_dir}/golang"
-    local go_root="${HOME}/opt/go${version}"
-    local tmp="${work_dir}/tmp"
-
-    local file_name="go${version}.${os}-${arch}.tar.gz"
-    local url=https://storage.googleapis.com/golang/${file_name}
-
-    local go_package="${tmp}/${file_name}"
-
-    mkdir -p {"$tmp","$go_path","$go_root"}
-    wget -c -O "$go_package" "$url"
-    rm -rf "$go_root/*"
-    tar -xf "$go_package" -C "$go_root" --strip-components=1
-    # rm "$go_package"
-
-    local profile_file="${HOME}/.profile"
-
-    echo "export PATH=\"\$PATH:${go_root}/bin:${go_path}/bin\" # +ghost:path:go" >> "$profile_file"
-    echo "export GOROOT=\"${go_root}\" # +ghost:goroot" >> "$profile_file"
-    echo "export GOPATH=\"${go_path}\" # +ghost:gopath" >> "$profile_file"
-
-    export PATH="$PATH:${go_root}/bin:${go_path}/bin" >> "$profile_file"
-    export GOROOT="${go_root}" >> "$profile_file"
-    export GOPATH="${go_path}" >> "$profile_file"
+ghost_install_gvm() {
+    echo "> install gvm"
+    curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer | bash
+    ghost_setup_gvm_env
 }
 
-ghost_ensure_golang() {
-    if ! [ "$GOROOT" ]; 
+ghost_setup_gvm_env() {
+    echo "> setup gvm"
+    [[ -s "${HOME}/.gvm/scripts/gvm" ]] && source "${HOME}/.gvm/scripts/gvm"
+}
+
+ghost_ensure_gvm() {
+    if ! [ "$GVM_ROOT" ]; 
     then
-        ghost_install_golang
+        ghost_install_gvm
+        ghost_setup_gvm_env
     fi;
 }
 
-ghost_cleanup_golang() {
-    echo "> cleanup golang"
-    local go_root="${GOROOT}"
-    sed -i "/\+ghost\(:path:go\|:goroot\|:gopath\)/d" "${HOME}/.profile"
-    rm -rf "${go_root}"
-    unset GOPATH
-    unset GOROOT
+ghost_install_golang() {
+    echo "> install golang"
+    local version="${GHOST_GOVERSION:-1.8.3}";
+    ghost_ensure_gvm
+    gvm install go${version} -B
+    gvm use go${version} --default
+}
+
+ghost_ensure_golang() {
+    if ! which go > /dev/null
+    then 
+        ghost_install_golang
+    fi;
 }
 
 ghost_install_nvm() {
@@ -255,11 +238,11 @@ ghost_run_init() {
     echo "> ghost: init start"
     ghost_configure_ssh_env
     ghost_ensure_essentials
-    ghost_ensure_golang
+    # ghost_ensure_golang
     # ghost_ensure_node
-    ghost_ensure_mongo
-    ghost_configure_mongo_autostart
-    ghost_configure_mongo_restart_on_failure
+    # ghost_ensure_mongo
+    # ghost_configure_mongo_autostart
+    # ghost_configure_mongo_restart_on_failure
     ghost_init_bare_repo
     echo "> ghost: init done"
 }
