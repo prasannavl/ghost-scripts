@@ -154,10 +154,11 @@ ghost_init_repo_postreceive() {
         local deploy_file="${checkout_dir}/${deploy_script}"
         tee "${post_receive_file}" <<- EOF
 #!/usr/bin/env bash
-set -e -i
+set -i
 source "${HOME}/.profile"
-rm -rf "${checkout_dir}"
-mkdir -p "${checkout_dir}"
+set -e
+rm -rf "${checkout_dir}" || true
+mkdir -p "${checkout_dir}" || true
 cd "${checkout_dir}"
 git --git-dir="${repo_dir}" --work-tree="${checkout_dir}" checkout -f
 if [ -f "$deploy_file" ]; 
@@ -171,7 +172,8 @@ EOF
     chmod +x "$post_receive_file"
 }
 
-ghost_cleanup_repo_postreceive() {    
+ghost_cleanup_repo_postreceive() {
+    echo "> cleanup git bare repo: post-receive"        
     local work_dir="${HOME}/${GHOST_DIR_NAME}"
     local repo_dir="${work_dir}/${GHOST_GIT_TARGET_NAME}"
     local post_receive_file="${repo_dir}/hooks/post-receive"
