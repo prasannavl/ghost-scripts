@@ -128,15 +128,15 @@ ghost_cleanup_temp() {
     rm -rf ${work_dir}/tmp/*
 }
 
-ghost_init_bare_repo() {
+ghost_init_repo() {
     echo "> init git bare repo"
     local work_dir="${HOME}/${GHOST_DIR_NAME}"
     local repo_dir="${work_dir}/${GHOST_GIT_TARGET_NAME}"
     git --git-dir "${repo_dir}" init --bare
-    ghost_init_repo_post_receive
+    ghost_init_repo_postreceive
 }
 
-ghost_init_repo_post_receive() {
+ghost_init_repo_postreceive() {
     # TODO: Add race condition handling to post-receive scripts, 
     # with graceful exit of previous script
     
@@ -168,10 +168,17 @@ then
 fi;
 EOF
     fi;
-    chmod +x "${post_receive_file}"
+    chmod +x "$post_receive_file"
 }
 
-ghost_cleanup_bare_repo() {
+ghost_cleanup_repo_postreceive() {    
+    local work_dir="${HOME}/${GHOST_DIR_NAME}"
+    local repo_dir="${work_dir}/${GHOST_GIT_TARGET_NAME}"
+    local post_receive_file="${repo_dir}/hooks/post-receive"
+    rm -f "$post_receive_file"
+}
+
+ghost_cleanup_repo() {
     echo "> cleanup git bare repo"    
     local work_dir="${HOME}/${GHOST_DIR_NAME}"
     local repo_dir="${work_dir}/${GHOST_GIT_TARGET_NAME}"
@@ -226,6 +233,6 @@ ghost_run_init() {
     ghost_ensure_golang
     # ghost_ensure_node
     ghost_ensure_complete_mongo
-    ghost_init_bare_repo
+    ghost_init_repo
     echo "> ghost: init done"
 }
