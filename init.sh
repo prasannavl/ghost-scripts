@@ -214,14 +214,18 @@ ghost_configure_mongo_restart_on_failure() {
     fi;
 }
 
+ghost_ensure_complete_mongo() {
+    ghost_ensure_mongo
+    ghost_configure_mongo_autostart
+    ghost_configure_mongo_restart_on_failure
+}
+
 ghost_run_init() {
     echo "> ghost: init start"
     ghost_ensure_essentials
-    # ghost_ensure_golang
+    ghost_ensure_golang
     # ghost_ensure_node
-    # ghost_ensure_mongo
-    # ghost_configure_mongo_autostart
-    # ghost_configure_mongo_restart_on_failure
+    ghost_ensure_complete_mongo
     ghost_init_bare_repo
     echo "> ghost: init done"
 }
