@@ -55,7 +55,14 @@ ghost_run_remote() {
     # - Ensure required paths before transfer
     # - Source .profile, and execute main script
 
-    find . -not -path "./.git*" -path "*.sh" | xargs tar czf - | ssh ${ssh_args} "rm -rf \"${ghost_scripts_dir}\" && mkdir -p \"${ghost_scripts_dir}\" && tar xzf - -C \"${ghost_scripts_dir}\" && source .profile && \"${ghost_scripts_dir}/main.sh\" ${cmd}"
+    local remote_script="
+rm -rf \"${ghost_scripts_dir}\" && 
+mkdir -p \"${ghost_scripts_dir}\" &&
+tar xzf - -C \"${ghost_scripts_dir}\" &&
+set -i && source .profile && set +i &&
+\"${ghost_scripts_dir}/main.sh\" ${cmd}
+"
+    find . -not -path "./.git*" -path "*.sh" | xargs tar czf - | ssh ${ssh_args} "${remote_script}"
 }
 
 ghost_main_usage() {
@@ -84,7 +91,7 @@ ghost_main_parse_and_exec() {
         "exec")
         local cmd=${@:1}
         local ext_cmd=$(echo "$cmd" | sed -r "s/^exec\s(.*)/\1/")
-        "$ext_cmd"
+        $ext_cmd
         ;;
         *)
         ghost_main_usage
