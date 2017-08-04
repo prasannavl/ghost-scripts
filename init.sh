@@ -2,11 +2,11 @@
 ## Author: Prasanna V. Loganathar
 
 # The dir name for ghost inside the user's home dir
-GHOST_DIR_NAME="${GHOST_DIR_NAME:-workspace}"
+GHOST_DIR_NAME="${GHOST_DIR_NAME:-.}"
 
 # The dir name where the git bare repo will be created.
 # This is where remotes can push to.
-GHOST_GIT_TARGET_NAME="${GHOST_GIT_TARGET_NAME:-ghost.git}"
+GHOST_GIT_TARGET_NAME="${GHOST_GIT_TARGET_NAME:-ghost}"
 
 # The dir name where the git checkout will happen by
 # default after a remote pushes into the repo.
@@ -41,7 +41,7 @@ ghost_install_gvm() {
 
 ghost_setup_gvm_env() {
     echo "> setup gvm"
-    [[ -s "${HOME}/.gvm/scripts/gvm" ]] && source "${HOME}/.gvm/scripts/gvm"
+    [ -s "${HOME}/.gvm/scripts/gvm" ] && source "${HOME}/.gvm/scripts/gvm"
 }
 
 ghost_ensure_gvm() {
@@ -58,6 +58,28 @@ ghost_install_golang() {
     ghost_ensure_gvm
     gvm install go${version} -B
     gvm use go${version} --default
+}
+
+ghost_setup_golang_env() {
+    echo "> setup golang env"
+
+    local profile_file="${HOME}/.profile"
+
+    local default_path="$HOME/go"
+    local go_path="${GHOST_GOPATH:-$default_path}"
+
+    echo "export GOPATH=\"${go_path}:\$GOPATH\" # +ghost:gopath" >> "$profile_file"
+    echo "export PATH=\"${go_path}/bin:\$PATH\" # +ghost:path:go" >> "$profile_file"    
+
+    export GOPATH="${go_path}:\$GOPATH"
+    export PATH="${go_path}/bin:$PATH"
+}
+
+ghost_cleanup_golang_env() {
+    echo "> cleanup golang env"
+    local profile_file="${HOME}/.profile"
+    sed -i "/\+ghost\(:path:go\|:gopath\)/d" "${profile_file}"
+    echo "> env cleared. session restart required for changes"    
 }
 
 ghost_ensure_golang() {
@@ -173,18 +195,26 @@ EOF
 }
 
 ghost_cleanup_repo_postreceive() {
-    echo "> cleanup git bare repo: post-receive"        
     local work_dir="${HOME}/${GHOST_DIR_NAME}"
     local repo_dir="${work_dir}/${GHOST_GIT_TARGET_NAME}"
     local post_receive_file="${repo_dir}/hooks/post-receive"
+    echo "> cleanup git repo postreceive: " $post_receive_file
     rm -f "$post_receive_file"
 }
 
 ghost_cleanup_repo() {
-    echo "> cleanup git bare repo"    
     local work_dir="${HOME}/${GHOST_DIR_NAME}"
     local repo_dir="${work_dir}/${GHOST_GIT_TARGET_NAME}"
+    echo "> cleanup git repo: " $repo_dir
     rm -rf "$repo_dir"
+}
+
+ghost_cleanup_repo_full() {
+    local work_dir="${HOME}/${GHOST_DIR_NAME}"
+    local checkout_dir="${work_dir}/${GHOST_GIT_CHECKOUT_NAME}"
+    echo "> cleanup git checkout: " $checkout_dir
+    rm -rf "$checkout_dir"
+    ghost_cleanup_repo  
 }
 
 # ---
@@ -223,7 +253,7 @@ ghost_configure_mongo_restart_on_failure() {
     fi;
 }
 
-ghost_ensure_complete_mongo() {
+ghost_ensure_mongo_full() {
     ghost_ensure_mongo
     ghost_configure_mongo_autostart
     ghost_configure_mongo_restart_on_failure
@@ -233,8 +263,9 @@ ghost_run_init() {
     echo "> ghost: init start"
     ghost_ensure_essentials
     ghost_ensure_golang
+    ghost_setup_golang_env
     # ghost_ensure_node
-    ghost_ensure_complete_mongo
+    ghost_ensure_mongo_full
     ghost_init_repo
     echo "> ghost: init done"
 }
