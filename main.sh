@@ -2,7 +2,7 @@
 ## Author: Prasanna V. Loganathar
 
 # The dir name for ghost inside the user's home dir
-GHOST_DIR_NAME="${GHOST_DIR_NAME:-workspace}";
+GHOST_DIR_NAME="${GHOST_DIR_NAME:-.}";
 
 ghost_run_main() {
     local ghost_dir=$(dirname "${0}")
@@ -66,13 +66,14 @@ set -i && source .profile &&
 }
 
 ghost_main_usage() {
-    printf "\r\nUsage:\r\n\r\n"
-    echo "$0 init"
-    echo "$0 pull [--repo GHOST_REPO] [--name GHOST_DEPLOY_NAME] [--commit commit_sha1]"
+    printf "\nUsage:\n\n"
+    printf "$0 init\t run init script\n"
+    printf "$0 list [script]\t list functions available in script\n"
+    printf "$0 pull [--repo GHOST_REPO] [--name GHOST_DEPLOY_NAME] [--commit commit_sha1]\n"
     # echo "$0 build [--name GHOST_DEPLOY_NAME]"
     # echo "$0 run [--name GHOST_DEPLOY_NAME]"
-    echo "$0 remote <ssh-host> <ssh-options> -- <command>"
-    printf "\r\n"
+    printf "$0 remote <ssh-host> <ssh-options> -- <command>\t run a command on the remote host\n"
+    printf "\n"
 }
 
 ghost_main_parse_and_exec() {
@@ -91,7 +92,15 @@ ghost_main_parse_and_exec() {
         "exec")
         local cmd=${@:1}
         local ext_cmd=$(echo "$cmd" | sed -r "s/^exec\s(.*)/\1/")
-        $ext_cmd
+        eval $ext_cmd
+        ;;
+        "list")
+        local target=${@:2}
+        if ((${#target} < 1));
+        then 
+            target="$(dirname ${0})/init.sh"
+        fi
+        grep -o -P '^[\s]*([[:alnum:]_]+[\s]*)(?=\(\))' "$target"
         ;;
         *)
         ghost_main_usage
