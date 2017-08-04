@@ -27,13 +27,13 @@ ghost_install_golang_direct() {
 
     local profile_file="${HOME}/.profile"
 
-    echo "export PATH=\"\$PATH:${go_root}/bin:${go_path}/bin\" # +ghost:path:go" >> "$profile_file"
     echo "export GOROOT=\"${go_root}\" # +ghost:goroot" >> "$profile_file"
     echo "export GOPATH=\"${go_path}\" # +ghost:gopath" >> "$profile_file"
+    echo "export PATH=\"\$PATH:${go_root}/bin:${go_path}/bin\" # +ghost:path:go" >> "$profile_file"    
 
-    export PATH="$PATH:${go_root}/bin:${go_path}/bin" >> "$profile_file"
-    export GOROOT="${go_root}" >> "$profile_file"
-    export GOPATH="${go_path}" >> "$profile_file"
+    export GOROOT="${go_root}"
+    export GOPATH="${go_path}"  
+    export PATH="$PATH:${go_root}/bin:${go_path}/bin"   
 }
 
 ghost_ensure_golang_direct() {
