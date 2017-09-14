@@ -4,7 +4,7 @@
 ghost_install_golang_direct() {
     echo "> install golang"
     
-    local version="${GHOST_GOVERSION:-1.8.3}";
+    local version="${GHOST_GOVERSION:-1.9.0}";
     local arch="${GHOST_GOARCH:-amd64}"
     local os="${GHOST_GOOS:-linux}"
 
@@ -50,6 +50,28 @@ ghost_cleanup_golang_direct() {
     rm -rf "${go_root}"
     unset GOPATH
     unset GOROOT
+}
+
+ghost_setup_golang_env() {
+    echo "> setup golang env"
+
+    local profile_file="${HOME}/.profile"
+
+    local default_path="$HOME/go"
+    local go_path="${GHOST_GOPATH:-$default_path}"
+
+    echo "export GOPATH=\"${go_path}:\$GOPATH\" # +ghost:gopath" >> "$profile_file"
+    echo "export PATH=\"${go_path}/bin:\$PATH\" # +ghost:path:go" >> "$profile_file"    
+
+    export GOPATH="${go_path}:\$GOPATH"
+    export PATH="${go_path}/bin:$PATH"
+}
+
+ghost_cleanup_golang_env() {
+    echo "> cleanup golang env"
+    local profile_file="${HOME}/.profile"
+    sed -i "/\+ghost\(:path:go\|:gopath\)/d" "${profile_file}"
+    echo "> env cleared. session restart required for changes"    
 }
 
 ghost_configure_ssh_env() {
