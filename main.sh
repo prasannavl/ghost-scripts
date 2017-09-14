@@ -62,6 +62,7 @@ tar xzf - -C \"${ghost_scripts_dir}\" &&
 set -i && source .profile &&
 \"${ghost_scripts_dir}/main.sh\" ${cmd}
 "
+    # Compress, and start piping
     find . -not -path "./.git*" -path "*.sh" | xargs tar czf - | ssh ${ssh_args} "${remote_script}"
 }
 
